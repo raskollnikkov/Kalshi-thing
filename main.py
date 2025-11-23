@@ -5,11 +5,17 @@ import asyncio
 
 from clients import KalshiHttpClient, KalshiWebSocketClient, Environment
 
-# Load environment variables
+# Load environment variables from .env (if present)
 load_dotenv()
-env = Environment.DEMO # toggle environment here
-KEYID = os.getenv('DEMO_KEYID') if env == Environment.DEMO else os.getenv('PROD_KEYID')
-KEYFILE = os.getenv('DEMO_KEYFILE') if env == Environment.DEMO else os.getenv('PROD_KEYFILE')
+
+# Allow switching environments via the KALSHI_ENV variable ("demo" or "prod").
+# Defaults to demo to keep the current branch safe for testing.
+kalshi_env = os.getenv('KALSHI_ENV', 'demo').lower()
+env = Environment.PROD if kalshi_env == 'prod' else Environment.DEMO
+
+# Pick the appropriate key ID and key file from environment variables
+KEYID = os.getenv('PROD_KEYID') if env == Environment.PROD else os.getenv('DEMO_KEYID')
+KEYFILE = os.getenv('PROD_KEYFILE') if env == Environment.PROD else os.getenv('DEMO_KEYFILE')
 
 try:
     with open(KEYFILE, "rb") as key_file:
